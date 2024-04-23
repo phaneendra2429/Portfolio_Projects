@@ -1,6 +1,6 @@
 # README
 
-### Title:** Data Cleaning and Analysis Script
+### Title: Data Cleaning and Analysis Script
 
 **Description:**
 This script is designed for data cleaning and exploratory data analysis on a dataset named "layoffs". It performs various data cleaning operations such as removing duplicates, standardizing data, handling null values, and conducting exploratory data analysis to gain insights into the dataset. Additionally, it includes a function for calculating rolling totals of layoffs and ranks the top 5 companies with the highest layoffs for each year.
