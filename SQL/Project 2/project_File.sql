@@ -209,18 +209,106 @@ drop column row_num;
 
 -- Exploratory data analysis 
 
+select * 
+from layoffs_staging2;
+
+-- Gives the values of total laid off and percentage laid off from the entire data 
+select max(total_laid_off), max(percentage_laid_off)
+from layoffs_staging2;
+
+-- gives the table of the companies that are completely laid off  Ordered by fundraised 
+select *
+from layoffs_staging2
+where percentage_laid_off = 1
+order by funds_raised_millions DESC;
+
+-- gives the table of Laid off based on company 
+select company, sum(total_laid_off)
+from layoffs_staging2
+group by company
+order by 2 desc;
+
+SELECT MIN(date), max(date)
+from layoffs_staging2;
+
+-- gives the table of Laid off based on industry 
+select industry, sum(total_laid_off)
+from layoffs_staging2
+group by industry
+order by 2 desc;
+
+select * from layoffs_staging2;
+
+-- total laid off value based on year 
+select YEAR(date), sum(total_laid_off)
+from layoffs_staging2
+group by YEAR(date)
+order by 1 desc;
+
+-- Total light of based on funding stage 
+select stage, sum(total_laid_off)
+from layoffs_staging2
+group by stage
+order by 2 desc;
 
 
+select substring(date, 1, 7) as month , sum(total_laid_off)
+from layoffs_staging2
+where substring(date, 1, 7) is not null
+group by month
+order by 1 ASC;
 
 
+-- Creating a function for rolling total of layoffs   
+with Rolling_total as
+(
+select substring(date, 1, 7) as month , sum(total_laid_off) as total_off
+from layoffs_staging2
+where substring(date, 1, 7) is not null
+group by month
+order by 1 ASC
+)
+select month, total_off, sum(total_off) over (order by month) as rolling_total
+from Rolling_total;
 
 
+select company, YEAR(date), sum(total_laid_off)
+from layoffs_staging2
+group by company, YEAR(date)
+order by 3 desc;
+ 
+ 
+ /* The code calculates the total number of employees laid off by each company per year, ranks them within each year
+ based on the total layoffs, and selects the top 5 companies with the highest layoffs for each year. */
+with Company_Year (Company, years, total_laid_off) as 
+(
+select company, YEAR(date), sum(total_laid_off)
+from layoffs_staging2
+group by company, YEAR(date)
+), Company_Year_Rank as
+(select *, dense_rank() over(partition by years order by total_laid_off desc) as Ranking
+from Company_Year
+where years is not null
+)
+select * 
+from Company_Year_Rank
+where Ranking <=5;
 
+/*
+This SQL code first creates a Common Table Expression (CTE) named Company_Year that calculates the total number of employees laid off by each company per year. 
+It groups the data by company and year, calculating the sum of layoffs for each group. 
 
+Then, it creates another CTE named Company_Year_Rank, which assigns a rank to each company within each year based on the total number of layoffs, 
+using the dense_rank() window function. The companies are ranked in descending order of total layoffs within each year.
 
-
-
-
-
-
-
+Finally, it selects the rows from the Company_Year_Rank CTE where the ranking is less than or equal to 5, 
+effectively retrieving the top 5 companies with the highest layoffs for each year.
+*/
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
